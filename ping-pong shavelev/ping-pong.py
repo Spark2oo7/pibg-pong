@@ -1,4 +1,4 @@
-#Создай собственный Шутер!
+#dy spark2oo7
 from pygame import *
 from random import randint
 
@@ -51,14 +51,26 @@ class Ball(GameSprite):
         self.rect.y += self.dir_y * self.speed
 
         if self.rect.y < 0:
-            self.dir_y = 1
+            self.dir_y = randint(8, 12) / 10
         if self.rect.y > win_height - self.size_y:
-            self.dir_y = -1
+            self.dir_y = randint(8, 12) / -10
+        
+        if sprite.collide_rect(self, player1):
+            self.dir_x = randint(8, 12) / 10
+            if randint(0, 5) == 5:
+                self.speed += 1
+        if sprite.collide_rect(self, player2):
+            self.dir_x = randint(8, 12) / -10
+            if randint(0, 5) == 5:
+                self.speed += 1
+        
+        global win
+        if self.rect.x < -50:
+            win = 2
+
+        if self.rect.x > 650:
+            win = 1
     
-#музыка
-# mixer.init()
-# mixer.music.load('space.ogg')
-# mixer.music.play()
 
 #создай окно игры
 win_width = 700
@@ -75,18 +87,16 @@ player2 = Player("racket.png", 650, 150, 50, 200, 5, 2)
 
 ball = Ball("ball.png", 300, 150, 50, 50, 5, 1, 1)
 
-score = 0
-lost = 0
 
 font.init()
 
-font1 = font.SysFont("Arial", 36)
-font2 = font.SysFont("Arial", 80)
+font = font.SysFont("Arial", 80)
 
-you_win = font2.render("Ты победил!", 1, (255, 255, 0))
-you_lose = font2.render("Ты проиграл(", 1, (255, 0, 0))
+win1 = font.render("Игрок 1 победил!", 1, (255, 255, 0))
+win2 = font.render("Игрок 2 победил!", 1, (255, 255, 0))
 
 #игровой цикл
+win = 0
 clock = time.Clock()
 FPS = 60
 game = True
@@ -108,23 +118,13 @@ while game:
         
         player2.update()
         player2.reset()
-        
-        text_score = font1.render("Счёт: " + str(score), 1, (255, 255, 255))
-        window.blit(text_score, (0, 0))
 
-        # colides = sprite.groupcollide(enemys, bullets, True, True)
-        # for e in colides:
-        #     score += 1
-        #     enemy = Enemy("ufo.png", randint(0, 350), -50, 150, 50, randint(2, 3))
-        #     enemys.add(enemy)
-        
-        # if lost >= 3:
-        #     window.blit(you_lose, (200, 200))
-        #     finish = True
-
-        # if score >= 10:
-        #     window.blit(you_win, (200, 200))
-        #     finish = True
+        if win == 1:
+            window.blit(win1, (100, 200))
+            finish = True
+        if win == 2:
+            window.blit(win2, (100, 200))
+            finish = True
     
     display.update()
     clock.tick(FPS)
