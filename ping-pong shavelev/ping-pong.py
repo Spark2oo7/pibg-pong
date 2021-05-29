@@ -39,28 +39,21 @@ class Player(GameSprite):
             if keys_pressed[K_UP] and self.rect.y > self.speed:
                 self.rect.y -= self.speed
 
-class Enemy(GameSprite):
-    def __init__(self, fileName, x, y, size_x, size_y, speed):
-        super().__init__(fileName, x, y, size_x, size_y, speed)
-        
-    def update(self):
-        if self.rect.y > 500:
-            self.rect.y = -50
-            self.rect.x = randint(0, 350)
 
-            global lost
-            lost += 1
-        else:
-            self.rect.y += self.speed
-
-class Bullet(GameSprite):
-    def __init__(self, fileName, x, y, size_x, size_y, speed):
+class Ball(GameSprite):
+    def __init__(self, fileName, x, y, size_x, size_y, speed, dir_x, dir_y):
         super().__init__(fileName, x, y, size_x, size_y, speed)
-        
+        self.dir_x = dir_x
+        self.dir_y = dir_y
+
     def update(self):
-        self.rect.y -= self.speed
-        if self.rect.y < -50:
-            self.kill()
+        self.rect.x += self.dir_x * self.speed
+        self.rect.y += self.dir_y * self.speed
+
+        if self.rect.y < 0:
+            self.dir_y = 1
+        if self.rect.y > win_height - self.size_y:
+            self.dir_y = -1
     
 #музыка
 # mixer.init()
@@ -80,7 +73,7 @@ background = transform.scale(image.load('backgraund.png'), (win_width, win_heigh
 player1 = Player("racket.png", 0, 150, 50, 200, 5, 1)
 player2 = Player("racket.png", 650, 150, 50, 200, 5, 2)
 
-bullets = sprite.Group()
+ball = Ball("ball.png", 300, 150, 50, 50, 5, 1, 1)
 
 score = 0
 lost = 0
@@ -106,14 +99,18 @@ while game:
 
     if not finish:
         window.blit(background, (0, 0))
+
+        ball.update()
+        ball.reset()
+
         player1.update()
         player1.reset()
-
+        
+        player2.update()
+        player2.reset()
+        
         text_score = font1.render("Счёт: " + str(score), 1, (255, 255, 255))
         window.blit(text_score, (0, 0))
-
-        bullets.update()
-        bullets.draw(window)
 
         # colides = sprite.groupcollide(enemys, bullets, True, True)
         # for e in colides:
